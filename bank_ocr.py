@@ -55,15 +55,14 @@ def split_digits(input_str: str) -> Sequence[Digit]:
 
 def parse_digit(digit: Digit) -> int:
     return reduce(
-                set.intersection,
-                (
-                    LINE_MAPPINGS[i][line]
-                    for i, line in enumerate(
-                        [digit.first_line, digit.second_line, digit.third_line]
-                    )
-                ),
+        set.intersection,
+        (
+            LINE_MAPPINGS[i][line]
+            for i, line in enumerate(
+                [digit.first_line, digit.second_line, digit.third_line]
+            )
+        ),
     ).pop()
-        
 
 
 def parse(input_str: str) -> Sequence[int]:

@@ -1,6 +1,6 @@
 import pytest
 
-from bank_ocr import Digit, parse, parse_digit, split_digits
+from bank_ocr import Digit, parse, parse_digit, split_digits, checksum
 
 ONE_TO_NINE = """
     _  _     _  _  _  _  _ 
@@ -263,4 +263,4 @@ def test_parse_use_cases_1(input_str, parsed_numbers):
 
 
 def test_checksum():
-    assert checksum([3,4,5,8,8,2,8,6,5]) == 0
+    assert checksum([3, 4, 5, 8, 8, 2, 8, 6, 5]) == 0

@@ -5,6 +5,8 @@ from typing import Sequence
 DIGIT_LENGTH = 3
 NUMBER_OF_ROWS = 3
 
+CHECKSUM_DIVISOR = 11
+
 
 FIRST_LINE_MAPPING = {
     "   ": {1, 4},
@@ -68,3 +70,11 @@ def parse_digit(digit: Digit) -> int:
 
 def parse(input_str: str) -> Sequence[int]:
     return [parse_digit(digit) for digit in split_digits(input_str)]
+
+
+def checksum(account: Sequence[int]) -> int:
+    calculated_sum = 0
+    for index, member in enumerate(reversed(account)):
+        calculated_sum += (index + 1) * member
+
+    return calculated_sum % CHECKSUM_DIVISOR

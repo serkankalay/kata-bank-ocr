@@ -60,7 +60,15 @@ def digit_9() -> Digit:
 
 
 def test_split_digits(
-    digit_1, digit_2, digit_3, digit_4, digit_5, digit_6, digit_7, digit_8, digit_9
+    digit_1,
+    digit_2,
+    digit_3,
+    digit_4,
+    digit_5,
+    digit_6,
+    digit_7,
+    digit_8,
+    digit_9,
 ):
     digits = split_digits(ONE_TO_NINE)
     print(digits)

@@ -53,7 +53,7 @@ def split_digits(input_str: str):
     ]
 
 
-def parse(digit: Digit) -> int:
+def parse_digit(digit: Digit) -> int:
     return next(
         iter(
             reduce(

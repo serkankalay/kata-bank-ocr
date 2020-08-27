@@ -260,3 +260,7 @@ def test_parse_digit(input_digit, parsed_number):
 )
 def test_parse_use_cases_1(input_str, parsed_numbers):
     assert parse(input_str) == parsed_numbers
+
+
+def test_checksum():
+    assert checksum([3,4,5,8,8,2,8,6,5]) == 0

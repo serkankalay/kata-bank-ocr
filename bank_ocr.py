@@ -41,7 +41,7 @@ class Digit:
     third_line: str
 
 
-def split_digits(input_str: str):
+def split_digits(input_str: str) -> Sequence[Digit]:
     lines = input_str.splitlines()[1 : NUMBER_OF_ROWS + 1]
     return [
         Digit(
@@ -67,3 +67,7 @@ def parse_digit(digit: Digit) -> int:
             )
         )
     )
+
+
+def parse(input_str: str) -> Sequence[int]:
+    return [parse_digit(digit) for digit in split_digits(input_str)]

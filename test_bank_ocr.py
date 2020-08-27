@@ -1,11 +1,12 @@
 import pytest
 
-from bank_ocr import Digit, parse_digit, split_digits
+from bank_ocr import Digit, parse, parse_digit, split_digits
 
 ONE_TO_NINE = """
     _  _     _  _  _  _  _ 
   | _| _||_||_ |_   ||_||_|
   ||_  _|  | _||_|  ||_| _|
+
 """
 
 
@@ -104,3 +105,7 @@ def test_split_digits(
 )
 def test_parse_digit(input_digit, parsed_number):
     assert parse_digit(input_digit) == parsed_number
+
+
+def test_parse_one_to_nine():
+    assert parse(ONE_TO_NINE) == [1, 2, 3, 4, 5, 6, 7, 8, 9]

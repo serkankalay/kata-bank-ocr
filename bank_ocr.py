@@ -54,9 +54,7 @@ def split_digits(input_str: str) -> Sequence[Digit]:
 
 
 def parse_digit(digit: Digit) -> int:
-    return next(
-        iter(
-            reduce(
+    return reduce(
                 set.intersection,
                 (
                     LINE_MAPPINGS[i][line]
@@ -64,9 +62,8 @@ def parse_digit(digit: Digit) -> int:
                         [digit.first_line, digit.second_line, digit.third_line]
                     )
                 ),
-            )
-        )
-    )
+    ).pop()
+        
 
 
 def parse(input_str: str) -> Sequence[int]:

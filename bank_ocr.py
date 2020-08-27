@@ -42,7 +42,8 @@ class Digit:
 
 
 def split_digits(input_str: str) -> Sequence[Digit]:
-    lines = input_str.splitlines()[1 : NUMBER_OF_ROWS + 1]
+    lines = input_str.splitlines()[0:NUMBER_OF_ROWS]
+    print(lines)
     return [
         Digit(
             first_line=lines[0][section_start : section_start + DIGIT_LENGTH],

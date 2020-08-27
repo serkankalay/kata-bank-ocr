@@ -1,7 +1,33 @@
 from dataclasses import dataclass
+from functools import reduce
+from typing import Sequence
 
 DIGIT_LENGTH = 3
 NUMBER_OF_ROWS = 3
+
+
+FIRST_LINE_MAPPING = {
+    "   ": {1, 4},
+    " _ ": {0, 2, 3, 5, 6, 7, 8, 9},
+}
+
+SECOND_LINE_MAPPING = {
+    "| |": {0},
+    "  |": {1, 7},
+    " _|": {2, 3},
+    "|_|": {4, 8, 9},
+    "|_ ": {5, 6},
+}
+
+THIRD_LINE_MAPPING = {
+    "|_|": {0, 6, 8},
+    "  |": {1, 4, 7},
+    "|_ ": {2},
+    " _|": {3, 5, 9},
+}
+
+
+LINE_MAPPINGS = {0: FIRST_LINE_MAPPING, 1: SECOND_LINE_MAPPING, 2: THIRD_LINE_MAPPING}
 
 
 @dataclass(frozen=True)
@@ -21,3 +47,19 @@ def split_digits(input_str: str):
         )
         for section_start in range(0, len(lines[0]), DIGIT_LENGTH)
     ]
+
+
+def parse(digit: Digit) -> int:
+    return next(
+        iter(
+            reduce(
+                set.intersection,
+                (
+                    LINE_MAPPINGS[i][line]
+                    for i, line in enumerate(
+                        [digit.first_line, digit.second_line, digit.third_line]
+                    )
+                ),
+            )
+        )
+    )

@@ -43,6 +43,13 @@ class Digit:
     third_line: str
 
 
+@dataclass(frozen=True)
+class Account:
+    numbers: Sequence[int]
+    is_valid_checksum: bool
+    is_ill: bool
+
+
 def split_digits(input_str: str) -> Sequence[Digit]:
     lines = input_str.splitlines()[0:NUMBER_OF_ROWS]
     print(lines)
@@ -57,7 +64,7 @@ def split_digits(input_str: str) -> Sequence[Digit]:
 
 
 def parse_digit(digit: Digit) -> int:
-    return reduce(
+    parsed = reduce(
         set.intersection,
         (
             LINE_MAPPINGS[i][line]
@@ -65,16 +72,27 @@ def parse_digit(digit: Digit) -> int:
                 [digit.first_line, digit.second_line, digit.third_line]
             )
         ),
-    ).pop()
+    )
+    return parsed.pop() if len(parsed) == 1 else -1
 
 
-def parse(input_str: str) -> Sequence[int]:
-    return [parse_digit(digit) for digit in split_digits(input_str)]
+def parse(input_str: str) -> Account:
+    parsed = [parse_digit(digit) for digit in split_digits(input_str)]
+    is_ill = any(number < 0 for number in parsed)
+    return Account(
+        numbers=parsed,
+        is_ill=is_ill,
+        is_valid_checksum=False if is_ill else checksum(parsed) == 0,
+    )
 
 
-def checksum(account: Sequence[int]) -> int:
+def checksum(numbers: Sequence[int]) -> int:
     calculated_sum = 0
-    for index, member in enumerate(reversed(account)):
+    for index, member in enumerate(reversed(numbers)):
         calculated_sum += (index + 1) * member
 
     return calculated_sum % CHECKSUM_DIVISOR
+
+
+def parse_check(input_str: str) -> bool:
+    return checksum(parse(input_str).numbers) == 0

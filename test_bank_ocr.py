@@ -1,6 +1,7 @@
 import pytest
 
-from bank_ocr import Digit, parse, parse_digit, split_digits, checksum
+from bank_ocr import (Digit, checksum, parse, parse_check, parse_digit,
+                      split_digits)
 
 ONE_TO_NINE = """
     _  _     _  _  _  _  _ 
@@ -259,8 +260,55 @@ def test_parse_digit(input_digit, parsed_number):
     ],
 )
 def test_parse_use_cases_1(input_str, parsed_numbers):
-    assert parse(input_str) == parsed_numbers
+    assert parse(input_str).numbers == parsed_numbers
 
 
 def test_checksum():
     assert checksum([3, 4, 5, 8, 8, 2, 8, 6, 5]) == 0
+
+
+FIFTY_ONE = """
+ _  _  _  _  _  _  _  _    
+| || || || || || || ||_   |
+|_||_||_||_||_||_||_| _|  |
+                           
+"""
+
+
+@pytest.fixture
+def fifty_one() -> str:
+    return FIFTY_ONE[1:]
+
+
+ILL_1 = """
+    _  _  _  _  _  _     _ 
+|_||_|| || ||_   |  |  | _ 
+  | _||_||_||_|  |  |  | _|
+                           
+"""
+
+
+@pytest.fixture
+def ill_1() -> str:
+    return ILL_1[1:]
+
+
+ILL_2 = """
+    _  _     _  _  _  _  _ 
+  | _| _||_| _ |_   ||_||_|
+  ||_  _|  | _||_|  ||_| _ 
+                           
+"""
+
+
+@pytest.fixture
+def ill_2() -> str:
+    return ILL_2[1:]
+
+
+def test_parse_check(fifty_one):
+    assert parse_check(fifty_one) is True
+
+
+# def test_parse_ill(ill_1):
+#     assert parse_check(ill_1) is False

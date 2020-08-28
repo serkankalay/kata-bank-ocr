@@ -1,7 +1,7 @@
 from dataclasses import dataclass, replace
 from functools import reduce
 from itertools import chain
-from typing import Sequence
+from typing import Collection, Sequence
 
 DIGIT_LENGTH = 3
 NUMBER_OF_ROWS = 3
@@ -65,22 +65,25 @@ class Digit:
         else:
             raise IndexError("Violated row number")
 
-    def alter(self, row_index: int, char_index: int, char: str) -> "Digit":
-        if row_index == 0:
-            return replace(
-                self, first_line=_replace_at(self.first_line, char_index, char)
-            )
-        elif row_index == 1:
-            return replace(
-                self,
-                second_line=_replace_at(self.second_line, char_index, char),
-            )
-        elif row_index == 2:
-            return replace(
-                self, third_line=_replace_at(self.third_line, char_index, char)
-            )
-        else:
-            raise IndexError("Violated row number")
+
+def _alter_digit(
+    digit: Digit, row_index: int, char_index: int, char: str
+) -> "Digit":
+    if row_index == 0:
+        return replace(
+            digit, first_line=_replace_at(digit.first_line, char_index, char)
+        )
+    elif row_index == 1:
+        return replace(
+            digit,
+            second_line=_replace_at(digit.second_line, char_index, char),
+        )
+    elif row_index == 2:
+        return replace(
+            digit, third_line=_replace_at(digit.third_line, char_index, char)
+        )
+    else:
+        raise IndexError("Violated row number")
 
 
 @dataclass(frozen=True)
@@ -88,6 +91,7 @@ class Account:
     numbers: Sequence[int]
     is_valid_checksum: bool
     is_ill: bool
+    alternatives: Collection["Account"] = None
 
 
 def _split_digits(input_str: str) -> Sequence[Digit]:
@@ -138,7 +142,7 @@ def parse(input_str: str) -> Account:
 
 def _variants_for_replacement(digit: Digit, char: str) -> Sequence[Digit]:
     return [
-        digit.alter(row_index, index, char)
+        _alter_digit(digit, row_index, index, char)
         for row_index in range(NUMBER_OF_ROWS)
         for index in range(DIGIT_LENGTH)
         if digit.line(row_index)[index] != char

@@ -1,7 +1,7 @@
 import pytest
 
-from bank_ocr import (Digit, _checksum, _parse_digit, _split_digits, _variants,
-                      parse)
+from bank_ocr import (Digit, _alter_digit, _checksum, _parse_digit,
+                      _split_digits, _variants, parse)
 
 ZERO_TO_NINE = """
  _     _  _     _  _  _  _  _ 
@@ -444,6 +444,6 @@ def test_variants(input_digit, expected_variants):
 
 
 def test_variants_for_replacement(eight):
-    assert eight.alter(1, 1, " ") == Digit(
+    assert _alter_digit(eight, 1, 1, " ") == Digit(
         first_line=" _ ", second_line="| |", third_line="|_|"
     )

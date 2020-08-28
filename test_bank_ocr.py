@@ -1,7 +1,6 @@
 import pytest
 
-from bank_ocr import (Digit, checksum, parse, parse_check, parse_digit,
-                      split_digits)
+from bank_ocr import Digit, checksum, parse, parse_digit, split_digits
 
 ONE_TO_NINE = """
     _  _     _  _  _  _  _ 
@@ -100,7 +99,6 @@ SIXES = """
 |_||_||_||_||_||_||_||_||_|
                            
 """
-
 
 @pytest.fixture
 def sixes() -> str:
@@ -306,9 +304,54 @@ def ill_2() -> str:
     return ILL_2[1:]
 
 
+ERR = """
+ _  _     _  _        _  _ 
+|_ |_ |_| _|  |  ||_||_||_ 
+|_||_|  | _|  |  |  | _| _|
+
+"""
+
+
+@pytest.fixture
+def err() -> str:
+    return ERR[1:]
+
+
 def test_parse_check(fifty_one):
-    assert parse_check(fifty_one) is True
+    account = parse(fifty_one)
+    assert account.is_ill is False and account.is_valid_checksum is True
 
 
-# def test_parse_ill(ill_1):
-#     assert parse_check(ill_1) is False
+def test_parse_ill_1(ill_1):
+    account = parse(ill_1)
+    assert account.is_ill is True and account.numbers == [
+        4,
+        9,
+        0,
+        0,
+        6,
+        7,
+        7,
+        1,
+        -1,
+    ]
+
+
+def test_parse_ill_2(ill_2):
+    account = parse(ill_2)
+    assert account.is_ill is True and account.numbers == [
+        1,
+        2,
+        3,
+        4,
+        -1,
+        6,
+        7,
+        8,
+        -1,
+    ]
+
+
+def test_parse_err(err):
+    account = parse(err)
+    assert account.is_ill is False and account.is_valid_checksum is False

@@ -64,16 +64,18 @@ def split_digits(input_str: str) -> Sequence[Digit]:
 
 
 def parse_digit(digit: Digit) -> int:
-    parsed = reduce(
-        set.intersection,
-        (
-            LINE_MAPPINGS[i][line]
-            for i, line in enumerate(
-                [digit.first_line, digit.second_line, digit.third_line]
-            )
-        ),
-    )
-    return parsed.pop() if len(parsed) == 1 else -1
+    try:
+        return reduce(
+            set.intersection,
+            (
+                LINE_MAPPINGS[i][line]
+                for i, line in enumerate(
+                    [digit.first_line, digit.second_line, digit.third_line]
+                )
+            ),
+        ).pop()
+    except KeyError:
+        return -1
 
 
 def parse(input_str: str) -> Account:
@@ -92,7 +94,3 @@ def checksum(numbers: Sequence[int]) -> int:
         calculated_sum += (index + 1) * member
 
     return calculated_sum % CHECKSUM_DIVISOR
-
-
-def parse_check(input_str: str) -> bool:
-    return checksum(parse(input_str).numbers) == 0

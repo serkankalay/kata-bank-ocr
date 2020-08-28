@@ -182,7 +182,6 @@ def parse(input_str: str) -> Account:
             if number < 0
             for variant in _variants(digits[index])
         ]
-        print(alternatives)
         return Account(
             numbers=parsed,
             status=Status.ILL,

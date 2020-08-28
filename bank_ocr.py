@@ -1,4 +1,5 @@
 from dataclasses import dataclass, replace
+from enum import Enum, auto
 from functools import reduce
 from itertools import chain
 from typing import Collection, Sequence
@@ -86,12 +87,18 @@ def _alter_digit(
         raise IndexError("Violated row number")
 
 
+class Status(Enum):
+    OK = auto()
+    ILL = auto()
+    ERR = auto()
+    AMB = auto()
+
+
 @dataclass(frozen=True)
 class Account:
     numbers: Sequence[int]
-    is_valid_checksum: bool
-    is_ill: bool
-    alternatives: Collection["Account"] = None
+    status: Status
+    alternatives: Collection[Sequence[int]] = None
 
 
 def _split_digits(input_str: str) -> Sequence[Digit]:
@@ -130,16 +137,6 @@ def _checksum(numbers: Sequence[int]) -> int:
     return calculated_sum % CHECKSUM_DIVISOR
 
 
-def parse(input_str: str) -> Account:
-    parsed = [_parse_digit(digit) for digit in _split_digits(input_str)]
-    is_ill = any(number < 0 for number in parsed)
-    return Account(
-        numbers=parsed,
-        is_ill=is_ill,
-        is_valid_checksum=False if is_ill else _checksum(parsed) == 0,
-    )
-
-
 def _variants_for_replacement(digit: Digit, char: str) -> Sequence[Digit]:
     return [
         _alter_digit(digit, row_index, index, char)
@@ -159,3 +156,18 @@ def _variants(digit: Digit) -> Sequence[int]:
         )
     ]
     return [number for number in variants if number >= 0]
+
+
+def parse(input_str: str) -> Account:
+    digits = _split_digits(input_str)
+    parsed = [_parse_digit(digit) for digit in digits]
+    is_ill = any(number < 0 for number in parsed)
+    is_valid_checksum = False if is_ill else _checksum(parsed) == 0
+    if is_ill is False and is_valid_checksum is True:
+        return Account(numbers=parsed, status=Status.OK,)
+    elif is_ill is True:
+        return Account(numbers=parsed, status=Status.ILL)
+    elif is_valid_checksum is False:
+        return Account(numbers=parsed, status=Status.ERR)
+    else:
+        raise ValueError("Not a valid use case")

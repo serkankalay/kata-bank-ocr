@@ -1,6 +1,6 @@
 import pytest
 
-from bank_ocr import (Digit, _alter_digit, _checksum, _parse_digit,
+from bank_ocr import (Digit, Status, _alter_digit, _checksum, _parse_digit,
                       _split_digits, _variants, parse)
 
 ZERO_TO_NINE = """
@@ -386,12 +386,12 @@ def err() -> str:
 
 def test_parse_check(fifty_one):
     account = parse(fifty_one)
-    assert account.is_ill is False and account.is_valid_checksum is True
+    assert account.status is Status.OK
 
 
 def test_parse_ill_1(ill_1):
     account = parse(ill_1)
-    assert account.is_ill is True and account.numbers == [
+    assert account.status is Status.ILL and account.numbers == [
         4,
         9,
         0,
@@ -406,7 +406,7 @@ def test_parse_ill_1(ill_1):
 
 def test_parse_ill_2(ill_2):
     account = parse(ill_2)
-    assert account.is_ill is True and account.numbers == [
+    assert account.status is Status.ILL and account.numbers == [
         1,
         2,
         3,
@@ -421,7 +421,7 @@ def test_parse_ill_2(ill_2):
 
 def test_parse_err(err):
     account = parse(err)
-    assert account.is_ill is False and account.is_valid_checksum is False
+    assert account.status is Status.ERR
 
 
 @pytest.mark.parametrize(

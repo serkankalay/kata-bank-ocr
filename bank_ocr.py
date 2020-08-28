@@ -169,10 +169,12 @@ def _replace_at_index(
 
 
 def parse(input_str: str) -> Account:
+    # Calculate helpers
     digits = _split_digits(input_str)
     parsed = [_parse_digit(digit) for digit in digits]
     is_ill = any(number < 0 for number in parsed)
     is_valid_checksum = False if is_ill else _checksum(parsed) == 0
+
     if is_ill is False and is_valid_checksum is True:
         return Account(numbers=parsed, status=Status.OK,)
     elif is_ill is True:
@@ -192,6 +194,19 @@ def parse(input_str: str) -> Account:
             ),
         )
     elif is_valid_checksum is False:
-        return Account(numbers=parsed, status=Status.ERR)
+        return Account(
+            numbers=parsed,
+            status=Status.ERR,
+            alternatives=list(
+                filter(
+                    _is_valid_checksum,
+                    [
+                        _replace_at_index(parsed, index, variant)
+                        for index, number in enumerate(parsed)
+                        for variant in _variants(digits[index])
+                    ],
+                )
+            ),
+        )
     else:
-        raise ValueError("Not a valid use case")
+        raise NotImplementedError("Not a valid use case")

@@ -496,3 +496,70 @@ def test_parse_advanced_ill(input_str, alternatives):
     assert (
         account.status is Status.ILL and account.alternatives == alternatives
     )
+
+
+ERR_1 = """
+    _  _  _  _  _  _     _ 
+|_||_|| || ||_   |  |  ||_ 
+  | _||_||_||_|  |  |  | _|
+
+"""
+
+
+@pytest.fixture
+def err_1() -> str:
+    return ERR_1[1:]
+
+
+ERR_2 = """
+ _  _  _  _  _  _  _  _  _ 
+ _|| || || || || || || || |
+|_ |_||_||_||_||_||_||_||_|
+
+"""
+
+
+@pytest.fixture
+def err_2() -> str:
+    return ERR_2[1:]
+
+
+@pytest.mark.parametrize(
+    "input_str,alternatives",
+    [
+        (pytest.lazy_fixture("ones"), [[7, 1, 1, 1, 1, 1, 1, 1, 1]]),
+        (pytest.lazy_fixture("sevens"), [[7, 7, 7, 7, 7, 7, 1, 7, 7]]),
+        (pytest.lazy_fixture("err_2"), [[2, 0, 0, 8, 0, 0, 0, 0, 0]]),
+        (pytest.lazy_fixture("threes"), [[3, 3, 3, 3, 9, 3, 3, 3, 3]]),
+        (
+            pytest.lazy_fixture("eights"),
+            [
+                [8, 8, 8, 8, 8, 6, 8, 8, 8],
+                [8, 8, 8, 8, 8, 8, 8, 8, 0],
+                [8, 8, 8, 8, 8, 8, 9, 8, 8],
+            ],
+        ),
+        (
+            pytest.lazy_fixture("fives"),
+            [[5, 5, 5, 6, 5, 5, 5, 5, 5], [5, 5, 9, 5, 5, 5, 5, 5, 5],],
+        ),
+        (
+            pytest.lazy_fixture("sixes"),
+            [[6, 6, 6, 5, 6, 6, 6, 6, 6], [6, 8, 6, 6, 6, 6, 6, 6, 6],],
+        ),
+        (
+            pytest.lazy_fixture("err_1"),
+            [
+                [4, 9, 0, 0, 6, 7, 1, 1, 5],
+                [4, 9, 0, 0, 6, 7, 7, 1, 9],
+                [4, 9, 0, 8, 6, 7, 7, 1, 5],
+            ],
+        ),
+    ],
+)
+def test_parse_advanced_err(input_str, alternatives):
+    account = parse(input_str)
+    assert (
+        account.status is Status.ERR
+        and sorted(account.alternatives) == alternatives
+    )

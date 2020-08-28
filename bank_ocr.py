@@ -2,7 +2,7 @@ from dataclasses import dataclass, replace
 from enum import Enum, auto
 from functools import reduce
 from itertools import chain
-from typing import Collection, Sequence
+from typing import Collection, List, Sequence
 
 DIGIT_LENGTH = 3
 NUMBER_OF_ROWS = 3
@@ -98,7 +98,7 @@ class Status(Enum):
 class Account:
     numbers: Sequence[int]
     status: Status
-    alternatives: Collection[Sequence[int]] = None
+    alternatives: List[Collection[int]] = None
 
 
 def _split_digits(input_str: str) -> Sequence[Digit]:
@@ -137,6 +137,10 @@ def _checksum(numbers: Sequence[int]) -> int:
     return calculated_sum % CHECKSUM_DIVISOR
 
 
+def _is_valid_checksum(numbers: Sequence[int]) -> bool:
+    return _checksum(numbers) == 0
+
+
 def _variants_for_replacement(digit: Digit, char: str) -> Sequence[Digit]:
     return [
         _alter_digit(digit, row_index, index, char)
@@ -158,6 +162,12 @@ def _variants(digit: Digit) -> Sequence[int]:
     return [number for number in variants if number >= 0]
 
 
+def _replace_at_index(
+    list_in: List[int], index: int, new_value: int
+) -> Collection[int]:
+    return list_in[0:index] + [new_value] + list_in[index + 1 :]
+
+
 def parse(input_str: str) -> Account:
     digits = _split_digits(input_str)
     parsed = [_parse_digit(digit) for digit in digits]
@@ -166,7 +176,18 @@ def parse(input_str: str) -> Account:
     if is_ill is False and is_valid_checksum is True:
         return Account(numbers=parsed, status=Status.OK,)
     elif is_ill is True:
-        return Account(numbers=parsed, status=Status.ILL)
+        alternatives = [
+            _replace_at_index(parsed, index, variant)
+            for index, number in enumerate(parsed)
+            if number < 0
+            for variant in _variants(digits[index])
+        ]
+        print(alternatives)
+        return Account(
+            numbers=parsed,
+            status=Status.ILL,
+            alternatives=list(filter(_is_valid_checksum, alternatives)),
+        )
     elif is_valid_checksum is False:
         return Account(numbers=parsed, status=Status.ERR)
     else:

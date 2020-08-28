@@ -81,6 +81,19 @@ def one_to_nine() -> str:
     return ONE_TO_NINE[1:]
 
 
+ONE_TO_NINE_ILL = """
+    _  _     _  _  _  _  _ 
+ _| _| _||_||_ |_   ||_||_|
+  ||_  _|  | _||_|  ||_| _|
+
+"""
+
+
+@pytest.fixture
+def one_to_nine_ill() -> str:
+    return ONE_TO_NINE_ILL[1:]
+
+
 ZEROS = """
  _  _  _  _  _  _  _  _  _ 
 | || || || || || || || || |
@@ -345,9 +358,22 @@ def fifty_one() -> str:
     return FIFTY_ONE[1:]
 
 
+FIFTY_ONE_ILL = """
+ _     _  _  _  _  _  _    
+| || || || || || || ||_   |
+|_||_||_||_||_||_||_| _|  |
+
+"""
+
+
+@pytest.fixture
+def fifty_one_ill() -> str:
+    return FIFTY_ONE_ILL[1:]
+
+
 ILL_1 = """
     _  _  _  _  _  _     _ 
-|_||_|| || ||_   |  |  | _ 
+|_||_|| ||_||_   |  |  | _ 
   | _||_||_||_|  |  |  | _|
                            
 """
@@ -395,7 +421,7 @@ def test_parse_ill_1(ill_1):
         4,
         9,
         0,
-        0,
+        8,
         6,
         7,
         7,
@@ -446,4 +472,27 @@ def test_variants(input_digit, expected_variants):
 def test_alter_digit_eight(eight):
     assert _alter_digit(eight, 1, 1, " ") == Digit(
         first_line=" _ ", second_line="| |", third_line="|_|"
+    )
+
+
+def test_five_missing_pipe():
+    digit = Digit(first_line=" _ ", second_line=" _ ", third_line=" _|")
+    assert sorted(_variants(digit)) == [3, 5]
+
+
+@pytest.mark.parametrize(
+    "input_str,alternatives",
+    [
+        (pytest.lazy_fixture("ill_1"), [[4, 9, 0, 8, 6, 7, 7, 1, 5]]),
+        (pytest.lazy_fixture("fifty_one_ill"), [[0, 0, 0, 0, 0, 0, 0, 5, 1]]),
+        (
+            pytest.lazy_fixture("one_to_nine_ill"),
+            [[1, 2, 3, 4, 5, 6, 7, 8, 9]],
+        ),
+    ],
+)
+def test_parse_advanced_ill(input_str, alternatives):
+    account = parse(input_str)
+    assert (
+        account.status is Status.ILL and account.alternatives == alternatives
     )

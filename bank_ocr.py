@@ -176,16 +176,20 @@ def parse(input_str: str) -> Account:
     if is_ill is False and is_valid_checksum is True:
         return Account(numbers=parsed, status=Status.OK,)
     elif is_ill is True:
-        alternatives = [
-            _replace_at_index(parsed, index, variant)
-            for index, number in enumerate(parsed)
-            if number < 0
-            for variant in _variants(digits[index])
-        ]
         return Account(
             numbers=parsed,
             status=Status.ILL,
-            alternatives=list(filter(_is_valid_checksum, alternatives)),
+            alternatives=list(
+                filter(
+                    _is_valid_checksum,
+                    [
+                        _replace_at_index(parsed, index, variant)
+                        for index, number in enumerate(parsed)
+                        if number < 0
+                        for variant in _variants(digits[index])
+                    ],
+                )
+            ),
         )
     elif is_valid_checksum is False:
         return Account(numbers=parsed, status=Status.ERR)

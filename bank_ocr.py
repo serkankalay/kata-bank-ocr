@@ -168,6 +168,29 @@ def _replace_at_index(
     return list_in[0:index] + [new_value] + list_in[index + 1 :]
 
 
+def _account_with_alternatives(
+    digits: Sequence[Digit],
+    parsed: List[int],
+    status: Status,
+    check_negative: bool,
+) -> Account:
+    return Account(
+        numbers=parsed,
+        status=status,
+        alternatives=list(
+            filter(
+                _is_valid_checksum,
+                [
+                    _replace_at_index(parsed, index, variant)
+                    for index, number in enumerate(parsed)
+                    if not check_negative or (check_negative and number < 0)
+                    for variant in _variants(digits[index])
+                ],
+            )
+        ),
+    )
+
+
 def parse(input_str: str) -> Account:
     # Calculate helpers
     digits = _split_digits(input_str)
@@ -175,38 +198,11 @@ def parse(input_str: str) -> Account:
     is_ill = any(number < 0 for number in parsed)
     is_valid_checksum = False if is_ill else _checksum(parsed) == 0
 
-    if is_ill is False and is_valid_checksum is True:
+    if not is_ill and is_valid_checksum:
         return Account(numbers=parsed, status=Status.OK,)
-    elif is_ill is True:
-        return Account(
-            numbers=parsed,
-            status=Status.ILL,
-            alternatives=list(
-                filter(
-                    _is_valid_checksum,
-                    [
-                        _replace_at_index(parsed, index, variant)
-                        for index, number in enumerate(parsed)
-                        if number < 0
-                        for variant in _variants(digits[index])
-                    ],
-                )
-            ),
-        )
-    elif is_valid_checksum is False:
-        return Account(
-            numbers=parsed,
-            status=Status.ERR,
-            alternatives=list(
-                filter(
-                    _is_valid_checksum,
-                    [
-                        _replace_at_index(parsed, index, variant)
-                        for index, number in enumerate(parsed)
-                        for variant in _variants(digits[index])
-                    ],
-                )
-            ),
-        )
+    elif is_ill:
+        return _account_with_alternatives(digits, parsed, Status.ILL, True)
+    elif not is_valid_checksum:
+        return _account_with_alternatives(digits, parsed, Status.ERR, False)
     else:
         raise NotImplementedError("Not a valid use case")

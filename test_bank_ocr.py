@@ -1,6 +1,6 @@
 import pytest
 
-from bank_ocr import Digit, checksum, parse, parse_digit, split_digits
+from bank_ocr import Digit, _checksum, _parse_digit, _split_digits, parse
 
 ONE_TO_NINE = """
     _  _     _  _  _  _  _ 
@@ -99,6 +99,7 @@ SIXES = """
 |_||_||_||_||_||_||_||_||_|
                            
 """
+
 
 @pytest.fixture
 def sixes() -> str:
@@ -206,7 +207,7 @@ def test_split_digits(
     digit_8,
     digit_9,
 ):
-    digits = split_digits(one_to_nine)
+    digits = _split_digits(one_to_nine)
     assert (
         len(digits) == 9
         and all(isinstance(d, Digit) for d in digits)
@@ -238,7 +239,7 @@ def test_split_digits(
     ],
 )
 def test_parse_digit(input_digit, parsed_number):
-    assert parse_digit(input_digit) == parsed_number
+    assert _parse_digit(input_digit) == parsed_number
 
 
 @pytest.mark.parametrize(
@@ -262,7 +263,7 @@ def test_parse_use_cases_1(input_str, parsed_numbers):
 
 
 def test_checksum():
-    assert checksum([3, 4, 5, 8, 8, 2, 8, 6, 5]) == 0
+    assert _checksum([3, 4, 5, 8, 8, 2, 8, 6, 5]) == 0
 
 
 FIFTY_ONE = """

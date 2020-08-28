@@ -50,7 +50,7 @@ class Account:
     is_ill: bool
 
 
-def split_digits(input_str: str) -> Sequence[Digit]:
+def _split_digits(input_str: str) -> Sequence[Digit]:
     lines = input_str.splitlines()[0:NUMBER_OF_ROWS]
     print(lines)
     return [
@@ -63,7 +63,7 @@ def split_digits(input_str: str) -> Sequence[Digit]:
     ]
 
 
-def parse_digit(digit: Digit) -> int:
+def _parse_digit(digit: Digit) -> int:
     try:
         return reduce(
             set.intersection,
@@ -78,19 +78,19 @@ def parse_digit(digit: Digit) -> int:
         return -1
 
 
-def parse(input_str: str) -> Account:
-    parsed = [parse_digit(digit) for digit in split_digits(input_str)]
-    is_ill = any(number < 0 for number in parsed)
-    return Account(
-        numbers=parsed,
-        is_ill=is_ill,
-        is_valid_checksum=False if is_ill else checksum(parsed) == 0,
-    )
-
-
-def checksum(numbers: Sequence[int]) -> int:
+def _checksum(numbers: Sequence[int]) -> int:
     calculated_sum = 0
     for index, member in enumerate(reversed(numbers)):
         calculated_sum += (index + 1) * member
 
     return calculated_sum % CHECKSUM_DIVISOR
+
+
+def parse(input_str: str) -> Account:
+    parsed = [_parse_digit(digit) for digit in _split_digits(input_str)]
+    is_ill = any(number < 0 for number in parsed)
+    return Account(
+        numbers=parsed,
+        is_ill=is_ill,
+        is_valid_checksum=False if is_ill else _checksum(parsed) == 0,
+    )

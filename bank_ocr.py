@@ -154,4 +154,4 @@ def _variants(digit: Digit) -> Sequence[int]:
             _variants_for_replacement(digit, " "),
         )
     ]
-    return sorted([number for number in variants if number >= 0])
+    return [number for number in variants if number >= 0]

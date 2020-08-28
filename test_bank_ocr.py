@@ -440,7 +440,7 @@ def test_parse_err(err):
     ],
 )
 def test_variants(input_digit, expected_variants):
-    assert _variants(input_digit) == expected_variants
+    assert sorted(_variants(input_digit)) == expected_variants
 
 
 def test_variants_for_replacement(eight):

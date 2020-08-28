@@ -1,6 +1,7 @@
 import pytest
 
-from bank_ocr import Digit, _checksum, _parse_digit, _split_digits, parse, _variants
+from bank_ocr import (Digit, _checksum, _parse_digit, _split_digits, _variants,
+                      parse)
 
 ZERO_TO_NINE = """
  _     _  _     _  _  _  _  _ 
@@ -11,15 +12,60 @@ ZERO_TO_NINE = """
 
 
 def _get_from_order(input_str: str, order: int) -> str:
-    return ''.join(
-        line if index == 3 else line[order * 3: (order * 3) +3] + '\n'
+    return "".join(
+        line if index == 3 else line[order * 3 : (order * 3) + 3] + "\n"
         for index, line in enumerate(input_str[1:].splitlines())
     )
 
 
 @pytest.fixture
-def zero() -> str:
-    return _get_from_order(ZERO_TO_NINE, 0)
+def zero() -> Digit:
+    return _split_digits(_get_from_order(ZERO_TO_NINE, 0))[0]
+
+
+@pytest.fixture
+def one() -> Digit:
+    return _split_digits(_get_from_order(ZERO_TO_NINE, 1))[0]
+
+
+@pytest.fixture
+def two() -> Digit:
+    return _split_digits(_get_from_order(ZERO_TO_NINE, 2))[0]
+
+
+@pytest.fixture
+def three() -> Digit:
+    return _split_digits(_get_from_order(ZERO_TO_NINE, 3))[0]
+
+
+@pytest.fixture
+def four() -> Digit:
+    return _split_digits(_get_from_order(ZERO_TO_NINE, 4))[0]
+
+
+@pytest.fixture
+def five() -> Digit:
+    return _split_digits(_get_from_order(ZERO_TO_NINE, 5))[0]
+
+
+@pytest.fixture
+def six() -> Digit:
+    return _split_digits(_get_from_order(ZERO_TO_NINE, 6))[0]
+
+
+@pytest.fixture
+def seven() -> Digit:
+    return _split_digits(_get_from_order(ZERO_TO_NINE, 7))[0]
+
+
+@pytest.fixture
+def eight() -> Digit:
+    return _split_digits(_get_from_order(ZERO_TO_NINE, 8))[0]
+
+
+@pytest.fixture
+def nine() -> Digit:
+    return _split_digits(_get_from_order(ZERO_TO_NINE, 9))[0]
 
 
 ONE_TO_NINE = """
@@ -378,5 +424,26 @@ def test_parse_err(err):
     assert account.is_ill is False and account.is_valid_checksum is False
 
 
-def test_variants(zero):
-    assert _variants(_split_digits(zero)[0]) == [8]
+@pytest.mark.parametrize(
+    "input_digit,expected_variants",
+    [
+        (pytest.lazy_fixture("zero"), [8]),
+        (pytest.lazy_fixture("one"), [7]),
+        (pytest.lazy_fixture("two"), []),
+        (pytest.lazy_fixture("three"), [9]),
+        (pytest.lazy_fixture("four"), []),
+        (pytest.lazy_fixture("five"), [6, 9]),
+        (pytest.lazy_fixture("six"), [5, 8]),
+        (pytest.lazy_fixture("seven"), [1]),
+        (pytest.lazy_fixture("eight"), [0, 6, 9]),
+        (pytest.lazy_fixture("nine"), [3, 5, 8]),
+    ],
+)
+def test_variants(input_digit, expected_variants):
+    assert _variants(input_digit) == expected_variants
+
+
+def test_variants_for_replacement(eight):
+    assert eight.alter(1, 1, " ") == Digit(
+        first_line=" _ ", second_line="| |", third_line="|_|"
+    )

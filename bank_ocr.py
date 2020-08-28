@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import reduce
+from itertools import chain
 from typing import Sequence
 
 DIGIT_LENGTH = 3
@@ -13,6 +14,8 @@ FIRST_LINE_MAPPING = {
     " _ ": {0, 2, 3, 5, 6, 7, 8, 9},
 }
 
+FIRST_LINE_KEYS = set(FIRST_LINE_MAPPING.keys())
+
 SECOND_LINE_MAPPING = {
     "| |": {0},
     "  |": {1, 7},
@@ -21,12 +24,16 @@ SECOND_LINE_MAPPING = {
     "|_ ": {5, 6},
 }
 
+SECONDS_LINE_KEYS = set(SECOND_LINE_MAPPING.keys())
+
 THIRD_LINE_MAPPING = {
     "|_|": {0, 6, 8},
     "  |": {1, 4, 7},
     "|_ ": {2},
     " _|": {3, 5, 9},
 }
+
+THIRD_LINE_KEYS = set(THIRD_LINE_MAPPING.keys())
 
 
 LINE_MAPPINGS = {
@@ -36,11 +43,44 @@ LINE_MAPPINGS = {
 }
 
 
+def _replace_at(input_str: str, char_index: int, char: str) -> str:
+    temp = list(input_str)
+    temp[char_index] = char
+    return "".join(temp)
+
+
 @dataclass(frozen=True)
 class Digit:
     first_line: str
     second_line: str
     third_line: str
+
+    def line(self, index: int) -> str:
+        if index == 0:
+            return self.first_line
+        elif index == 1:
+            return self.second_line
+        elif index == 2:
+            return self.third_line
+        else:
+            raise IndexError("Violated row number")
+
+    def alter(self, row_index: int, char_index: int, char: str) -> "Digit":
+        if row_index == 0:
+            return replace(
+                self, first_line=_replace_at(self.first_line, char_index, char)
+            )
+        elif row_index == 1:
+            return replace(
+                self,
+                second_line=_replace_at(self.second_line, char_index, char),
+            )
+        elif row_index == 2:
+            return replace(
+                self, third_line=_replace_at(self.third_line, char_index, char)
+            )
+        else:
+            raise IndexError("Violated row number")
 
 
 @dataclass(frozen=True)
@@ -96,5 +136,22 @@ def parse(input_str: str) -> Account:
     )
 
 
+def _variants_for_replacement(digit: Digit, char: str) -> Sequence[Digit]:
+    return [
+        digit.alter(row_index, index, char)
+        for row_index in range(NUMBER_OF_ROWS)
+        for index in range(DIGIT_LENGTH)
+        if digit.line(row_index)[index] != char
+    ]
+
+
 def _variants(digit: Digit) -> Sequence[int]:
-    return [8]
+    variants = [
+        _parse_digit(digit)
+        for digit in chain(
+            _variants_for_replacement(digit, "_"),
+            _variants_for_replacement(digit, "|"),
+            _variants_for_replacement(digit, " "),
+        )
+    ]
+    return sorted([number for number in variants if number >= 0])

@@ -94,3 +94,7 @@ def parse(input_str: str) -> Account:
         is_ill=is_ill,
         is_valid_checksum=False if is_ill else _checksum(parsed) == 0,
     )
+
+
+def _variants(digit: Digit) -> Sequence[int]:
+    return [8]

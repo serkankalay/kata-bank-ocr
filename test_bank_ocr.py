@@ -1,6 +1,26 @@
 import pytest
 
-from bank_ocr import Digit, _checksum, _parse_digit, _split_digits, parse
+from bank_ocr import Digit, _checksum, _parse_digit, _split_digits, parse, _variants
+
+ZERO_TO_NINE = """
+ _     _  _     _  _  _  _  _ 
+| |  | _| _||_||_ |_   ||_||_|
+|_|  ||_  _|  | _||_|  ||_| _|
+
+"""
+
+
+def _get_from_order(input_str: str, order: int) -> str:
+    return ''.join(
+        line if index == 3 else line[order * 3: (order * 3) +3] + '\n'
+        for index, line in enumerate(input_str[1:].splitlines())
+    )
+
+
+@pytest.fixture
+def zero() -> str:
+    return _get_from_order(ZERO_TO_NINE, 0)
+
 
 ONE_TO_NINE = """
     _  _     _  _  _  _  _ 
@@ -356,3 +376,7 @@ def test_parse_ill_2(ill_2):
 def test_parse_err(err):
     account = parse(err)
     assert account.is_ill is False and account.is_valid_checksum is False
+
+
+def test_variants(zero):
+    assert _variants(_split_digits(zero)[0]) == [8]
